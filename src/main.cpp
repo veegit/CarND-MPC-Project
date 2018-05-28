@@ -44,8 +44,7 @@ double polyeval(Eigen::VectorXd coeffs, double x) {
 // Fit a polynomial.
 // Adapted from
 // https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
-Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
-                        int order) {
+Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals, int order) {
   assert(xvals.size() == yvals.size());
   assert(order >= 1 && order <= xvals.size() - 1);
   Eigen::MatrixXd A(xvals.size(), order + 1);
@@ -64,6 +63,17 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   auto result = Q.solve(yvals);
   return result;
 }
+
+// convert from map coordinate to car coordinates
+void map2car(double px, double py, double psi, const vector<double>& ptsx_map, const vector<double>& ptsy_map, Eigen::VectorXd & ptsx_car, Eigen::VectorXd & ptsy_car){
+  for(int i=0; i< ptsx_map.size(); i++){
+    double dx = ptsx_map[i] - px;
+    double dy = ptsy_map[i] - py;
+    ptsx_car[i] = dx * cos(-psi) - dy * sin(-psi);
+    ptsy_car[i] = dx * sin(-psi) + dy * cos(-psi);
+  }
+}
+
 
 int main() {
   uWS::Hub h;
@@ -98,8 +108,30 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          double steer_value;
-          double throttle_value;
+          double steer_angle = j[1]["steering_angle"];
+          double throttle = j[1]["throttle"];
+          Eigen::VectorXd ptsx_car(ptsx.size());
+          Eigen::VectorXd ptsy_car(ptsy.size());
+          map2car(px, py, psi, ptsx, ptsy, ptsx_car, ptsy_car);
+          Eigen::VectorXd state(6);
+          auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
+
+          double latency = 0.1;
+
+          double Lf = 2.67;
+          v *= 0.44704;                             // convert from mph to m/s
+          px = 0 + v * cos(0) * latency;// px:  px0 = 0, due to the car coordinate system
+          py = 0 + v * sin(0) * latency;;// py:  psi=0 and y is point to the left of the car
+          psi = 0 - v / Lf * steer_angle * latency;// psi:  psi0 = 0, due to the car coordinate system
+          double epsi = 0 - atan(coeffs[1]) - v / Lf * steer_angle * latency;
+          double cte = polyeval(coeffs, 0) - 0 + v * sin(0- atan(coeffs[1])) * latency;
+          v += throttle * latency;
+          state << px, py, psi, v, cte, epsi;
+
+          auto vars = mpc.Solve(state, coeffs);
+
+          double steer_value = -vars[0] / deg2rad(25);
+          double throttle_value = vars[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
@@ -114,6 +146,11 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
+          for (int i=2; i < vars.size(); i=i+2) {
+              mpc_x_vals.push_back(vars[i]);
+              mpc_y_vals.push_back(vars[i+1]);
+          }
+
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
@@ -123,6 +160,10 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+          for(int i=1; i< ptsx_car.size(); i++) {
+              next_x_vals.push_back(ptsx_car[i]);
+              next_y_vals.push_back(ptsy_car[i]);
+          }
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
