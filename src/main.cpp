@@ -110,27 +110,27 @@ int main() {
           */
           double steer_angle = j[1]["steering_angle"];
           double throttle = j[1]["throttle"];
+          double latency = 0.1;
+          double Lf = 2.67;
+
+          px += v* latency * cos(psi);
+          py += v* latency * sin(psi);
+          psi += v / Lf * -steer_angle * latency;
+          v += throttle * latency;
+
           Eigen::VectorXd ptsx_car(ptsx.size());
           Eigen::VectorXd ptsy_car(ptsy.size());
           map2car(px, py, psi, ptsx, ptsy, ptsx_car, ptsy_car);
-          Eigen::VectorXd state(6);
           auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
 
-          double latency = 0.1;
+          double epsi = -atan(coeffs[1]);
+          double cte = polyeval(coeffs, 0);
 
-          double Lf = 2.67;
-          v *= 0.44704;                             // convert from mph to m/s
-          px = 0 + v * cos(0) * latency;// px:  px0 = 0, due to the car coordinate system
-          py = 0 + v * sin(0) * latency;;// py:  psi=0 and y is point to the left of the car
-          psi = 0 - v / Lf * steer_angle * latency;// psi:  psi0 = 0, due to the car coordinate system
-          double epsi = 0 - atan(coeffs[1]) - v / Lf * steer_angle * latency;
-          double cte = polyeval(coeffs, 0) - 0 + v * sin(0- atan(coeffs[1])) * latency;
-          v += throttle * latency;
-          state << px, py, psi, v, cte, epsi;
-
+          Eigen::VectorXd state(6);
+          state << 0.0, 0.0, 0.0, v, cte, epsi;
           auto vars = mpc.Solve(state, coeffs);
 
-          double steer_value = -vars[0] / deg2rad(25);
+          double steer_value = vars[0] / deg2rad(25);
           double throttle_value = vars[1];
 
           json msgJson;

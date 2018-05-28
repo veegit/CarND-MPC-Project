@@ -6,8 +6,8 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 25 ;
-double dt = 0.05 ;
+size_t N = 10 ;
+double dt = 0.12 ;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -253,9 +253,9 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   vector<double> outputs = { steering, acceleration };
 
   // attach the predicted route to display
-  for (i = 0; i < N; i++) {
-    outputs.push_back(solution.x[x_start + i]);
-    outputs.push_back(solution.x[y_start + i]);
+  for (i = 0; i < N-1; i++) {
+    outputs.push_back(solution.x[x_start + i + 1]);
+    outputs.push_back(solution.x[y_start + i + 1]);
   }
 
   return outputs;
