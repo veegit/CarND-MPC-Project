@@ -113,9 +113,10 @@ int main() {
           double latency = 0.1;
           double Lf = 2.67;
 
+          steer_angle = -steer_angle;
           px += v* latency * cos(psi);
           py += v* latency * sin(psi);
-          psi += v / Lf * -steer_angle * latency;
+          psi += v / Lf * steer_angle * latency;
           v += throttle * latency;
 
           Eigen::VectorXd ptsx_car(ptsx.size());
@@ -160,9 +161,11 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+          double poly_inc = 2.5;
+          int num_points = 25;
           for(int i=1; i< ptsx_car.size(); i++) {
-              next_x_vals.push_back(ptsx_car[i]);
-              next_y_vals.push_back(ptsy_car[i]);
+              next_x_vals.push_back(i * poly_inc);
+              next_y_vals.push_back(polyeval(coeffs, poly_inc*i));
           }
 
           msgJson["next_x"] = next_x_vals;
