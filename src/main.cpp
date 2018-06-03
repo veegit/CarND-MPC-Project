@@ -112,24 +112,28 @@ int main() {
           double throttle = j[1]["throttle"];
           double latency = 0.1; //100 millisecond
           double Lf = 2.67;
-          px += v * cos(psi) * latency;
-          py += v * sin(psi) * latency;
-          psi += -v / Lf * steer_angle * latency;
-          v += throttle * latency;
-
           Eigen::VectorXd ptsx_car(ptsx.size());
           Eigen::VectorXd ptsy_car(ptsy.size());
           map2car(px, py, psi, ptsx, ptsy, ptsx_car, ptsy_car);
           Eigen::VectorXd state(6);
           auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
-          double epsi = -atan(coeffs[1]);
-          double cte = polyeval(coeffs, 0);
 
-          state << 0.0, 0.0, 0.0, v, cte, epsi;
+	  double cte = polyeval(coeffs, px);
+	  double epsi = -atan(coeffs[1]);
+
+          double p_px = v * latency;
+          double p_py = 0.0;
+          double p_psi = -v / Lf * steer_angle * latency;
+	  double p_v = v + (throttle * latency);
+	  double p_cte = cte + (v * sin(epsi) * latency);
+	  double p_epsi = epsi + p_psi;
+
+
+          state << p_px, p_py, p_psi, p_v, p_cte, p_epsi;
 
           auto vars = mpc.Solve(state, coeffs);
 
-          double steer_value = vars[0] / deg2rad(25);
+          double steer_value = -vars[0] / deg2rad(25);
           double throttle_value = vars[1];
 
           json msgJson;
