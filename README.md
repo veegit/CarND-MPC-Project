@@ -11,7 +11,7 @@ https://github.com/udacity/CarND-MPC-Quizzes/blob/master/mpc_to_line/solution/MP
 
 | Equation | Code  |
 | ----- | ------------- |
-|  | `fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);`<br>`fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);`<br>`fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt);`<br>`fg[1 + v_start + t] = v1 - (v0 + a0 * dt);`<br>`fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));`<br>`fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);`<br> |
+| ./assets/equation.png | `fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);`<br>`fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);`<br>`fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt);`<br>`fg[1 + v_start + t] = v1 - (v0 + a0 * dt);`<br>`fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));`<br>`fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);`<br> |
 
 3. This the code for state, actuators and update equations. I modified the actuator change rate from 1 to 1000 to get a slower rate of change and allow car to drive smoothly. 1000 seemed to work better than a class recommended 500
 ````
