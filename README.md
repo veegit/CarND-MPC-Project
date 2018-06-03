@@ -37,7 +37,7 @@ https://github.com/udacity/CarND-MPC-Quizzes/blob/master/mpc_to_line/solution/MP
     }
 ````
 4. **timestamp duration (dt) and timestamp length (N)**
-I used N = 10 and dt=0.12 which results in T = 120 milliseconds. Also I set the latency as 0.1 Sec (100 milliseconds) which was closer to calculated T. My values were further reinforced by some discussions from slack channel that this was a good value to consider. And they were giving me better results than N = 25 and dt = 0.05 from MPC quizzes. 
+I used N = 10 and dt=0.12 which results in T = 1200 milliseconds. My values were further reinforced by some discussions from slack channel that this was a good value to consider. And they were giving me better results than N = 25 and dt = 0.05 from MPC quizzes. 
 5. **Polynomial Fitting and MPC Preprocessing**
 I converted the world coordinates to vehicle coordinates with following function
 ````
