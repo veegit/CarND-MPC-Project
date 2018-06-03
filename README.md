@@ -7,13 +7,13 @@ Self-Driving Car Engineer Nanodegree Program
 ## Development
 1. I used the code from MPC quizzes as baseline
 https://github.com/udacity/CarND-MPC-Quizzes/blob/master/mpc_to_line/solution/MPC.cpp
-2. This was kinematic equation used from the class and the code
+2. This was **kinematic equation** used from the class and the code
 
 | Equation | Code  |
 | ----- | ------------- |
 | ![](./assets/equation.png?raw=true) | `fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);`<br>`fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);`<br>`fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt);`<br>`fg[1 + v_start + t] = v1 - (v0 + a0 * dt);`<br>`fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));`<br>`fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);`<br> |
 
-3. This the code for state, actuators and update equations. I modified the actuator change rate from 1 to 1000 to get a slower rate of change and allow car to drive smoothly. 1000 seemed to work better than a class recommended 500
+3. This the code for **state, actuators and update equations**. I modified the actuator change rate from 1 to 1000 to get a slower rate of change and allow car to drive smoothly. 1000 seemed to work better than a class recommended 500
 ````
     for (int t = 0; t < N; t++) {
       fg[0] += 1*CppAD::pow(vars[cte_start + t], 2);
@@ -35,9 +35,9 @@ https://github.com/udacity/CarND-MPC-Quizzes/blob/master/mpc_to_line/solution/MP
       fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 ````
-4. timestamp duration (dt) and timestamp length (N)
+4. **timestamp duration (dt) and timestamp length (N)**
 I used N = 10 and dt=0.12 which results in T = 120 milliseconds. Also I set the latency as 0.1 Sec (100 milliseconds) which was closer to calculated T. My values were further reinforced by some discussions from slack channel that this was a good value to consider. And they were giving me better results than N = 25 and dt = 0.05 from MPC quizzes. 
-5. Polynomial Fitting and MPC Preprocessing
+5. **Polynomial Fitting and MPC Preprocessing**
 I converted the world coordinates to vehicle coordinates with following function
 ````
 void map2car(double px, double py, double psi, const vector<double>& ptsx_map, const vector<double>& ptsy_map, Eigen::VectorXd & ptsx_car, Eigen::VectorXd & ptsy_car){
@@ -56,7 +56,7 @@ auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
 double cte = polyeval(coeffs, px);
 double epsi = -atan(coeffs[1]);
 ````
-6. Model Predictive Control with Latency
+6. **Model Predictive Control with Latency**
 Since the coordinates where converted to vehicle orientation, I just used the original kinematics equation and replaced the `dt` with `latency`, `a` with `throttle`, `delta` with `steer_angle` and set the other values to zero and later initialized the state.
 *Note: Even after doing this, my car was making wrong turns. It turns out, I had to set the `steer_angle` to nwgative before initializing. This was discovered by following some slack discussions.*
 ````
