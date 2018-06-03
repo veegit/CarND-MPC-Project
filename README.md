@@ -1,10 +1,11 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
+## Video
 [![Alt text](https://img.youtube.com/vi/5mLn6PW2Nw8/0.jpg)](https://www.youtube.com/watch?v=5mLn6PW2Nw8)
 
 
-## Development
+## Implementation
 1. I used the code from MPC quizzes as baseline
 https://github.com/udacity/CarND-MPC-Quizzes/blob/master/mpc_to_line/solution/MPC.cpp
 2. This was **kinematic equation** used from the class and the code
@@ -70,6 +71,24 @@ state << p_px, p_py, p_psi, p_v, p_cte, p_epsi;
 ````
 
 ---
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Dependencies
 
