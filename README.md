@@ -56,6 +56,18 @@ auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
 double cte = polyeval(coeffs, px);
 double epsi = -atan(coeffs[1]);
 ````
+6. Model Predictive Control with Latency
+Since the coordinates where converted to vehicle orientation, I just used the original kinematics equation and replaced the `dt` with `latency`, `a` with `throttle`, `delta` with `steer_angle` and set the other values to zero and later initialized the state.
+*Note: Even after doing this, my car was making wrong turns. It turns out, I had to set the `steer_angle` to nwgative before initializing. This was discovered by following some slack discussions.*
+````
+double p_px = 0 + v * cos(0) * latency;
+double p_py = 0 + v * sin(0) * latency;
+double p_psi = 0 - v / Lf * steer_angle * latency;
+double p_v = v + (throttle * latency);
+double p_cte = cte - 0 + (v * sin(epsi) * latency);
+double p_epsi = epsi + p_psi;
+state << p_px, p_py, p_psi, p_v, p_cte, p_epsi;
+````
 
 ---
 
