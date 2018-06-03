@@ -118,15 +118,15 @@ int main() {
           Eigen::VectorXd state(6);
           auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
 
-	  double cte = polyeval(coeffs, px);
-	  double epsi = -atan(coeffs[1]);
+          double cte = polyeval(coeffs, px);
+          double epsi = -atan(coeffs[1]);
 
-          double p_px = v * latency;
-          double p_py = 0.0;
-          double p_psi = -v / Lf * steer_angle * latency;
-	  double p_v = v + (throttle * latency);
-	  double p_cte = cte + (v * sin(epsi) * latency);
-	  double p_epsi = epsi + p_psi;
+          double p_px = 0 + v * cos(0) * latency;
+          double p_py = 0 + v * sin(0) * latency;
+          double p_psi = 0 - v / Lf * steer_angle * latency;
+          double p_v = v + (throttle * latency);
+          double p_cte = cte - 0 + (v * sin(epsi) * latency);
+          double p_epsi = epsi + p_psi;
 
 
           state << p_px, p_py, p_psi, p_v, p_cte, p_epsi;

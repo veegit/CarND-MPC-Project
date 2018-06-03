@@ -6,6 +6,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
+// Changed the values from 25 / 0.05 to below ones which provided better output
 size_t N = 10  ;
 double dt = 0.12 ;
 
@@ -56,6 +57,7 @@ class FG_eval {
     // Minimize the use of actuators.
     // Minimize change-rate.
     for (int t = 0; t < N - 1; t++) {
+      //multiply by a huge value to do controlled steering.
       fg[0] += 1000*CppAD::pow(vars[delta_start + t], 2);
       fg[0] += CppAD::pow(vars[a_start + t], 2);
     }
@@ -252,7 +254,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   double acceleration = solution.x[a_start];
   vector<double> outputs = { steering, acceleration };
 
-  // attach the predicted route to display
+  // show the green predicted route to display
   for (i = 1; i < N-1; i++) {
     outputs.push_back(solution.x[x_start + i+1]);
     outputs.push_back(solution.x[y_start + i+1]);
